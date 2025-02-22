@@ -23,11 +23,15 @@ global:
   # inactive_color: the color of the inactive window's border
   #
   # Supported color types:
-  #   - Solid: Use a hex code or "accent"
+  #   - Solid: Use a hex code or accent variants
   #       Example:
   #         active_color: "#ffffff"
   #         OR
   #         active_color: "accent"
+  #         OR
+  #         active_color: "accent_light"  # Lighter variant of accent color
+  #         OR
+  #         active_color: "accent_dark"   # Darker variant of accent color
   #   - Gradient: Define colors and direction
   #       Example:
   #         active_color:

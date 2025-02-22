@@ -23,7 +23,9 @@ pub enum ColorConfig {
 
 impl Default for ColorConfig {
     fn default() -> Self {
-        Self::SolidConfig("accent".to_string())
+        Self::SolidConfig("accent".to_string());
+        Self::SolidConfig("accent_light".to_string());
+        Self::SolidConfig("accent_dark".to_string())
     }
 }
 
@@ -86,6 +88,16 @@ impl ColorConfig {
                         color: get_accent_color(is_active_color),
                         brush: None,
                     })
+                } else if solid_config == "accent_light" {
+                    Color::Solid(Solid {
+                        color: get_accent_color_light(is_active_color),
+                        brush: None,
+                    })
+                } else if solid_config == "accent_dark" {
+                    Color::Solid(Solid {
+                        color: get_accent_color_dark(is_active_color),
+                        brush: None,
+                    })
                 } else {
                     Color::Solid(Solid {
                         color: get_color_from_hex(solid_config.as_str()),
@@ -106,6 +118,10 @@ impl ColorConfig {
                         position: i as f32 * step,
                         color: if color == "accent" {
                             get_accent_color(is_active_color)
+                        } else if color == "accent_light" {
+                            get_accent_color_light(is_active_color)
+                        } else if color == "accent_dark" {
+                            get_accent_color_dark(is_active_color)
                         } else {
                             get_color_from_hex(color.as_str())
                         },
@@ -362,6 +378,70 @@ impl Gradient {
         }
     }
 }
+fn get_accent_color_light(is_active_color: bool) -> D2D1_COLOR_F {
+    let mut pcr_colorization: u32 = 0;
+    let mut pf_opaqueblend: BOOL = FALSE;
+    unsafe { DwmGetColorizationColor(&mut pcr_colorization, &mut pf_opaqueblend) }
+        .context("could not retrieve windows accent color")
+        .log_if_err();
+
+    let accent_red = ((pcr_colorization & 0x00FF0000) >> 16) as f32 / 255.0;
+    let accent_green = ((pcr_colorization & 0x0000FF00) >> 8) as f32 / 255.0;
+    let accent_blue = (pcr_colorization & 0x000000FF) as f32 / 255.0;
+    let accent_avg = (accent_red + accent_green + accent_blue) / 3.0;
+
+    let multiplier = if is_active_color { 1.2 } else { 1.0 };
+    let light_multiplier = 1.3;
+
+    if is_active_color {
+        D2D1_COLOR_F {
+            r: (accent_red * multiplier * light_multiplier).min(1.0),
+            g: (accent_green * multiplier * light_multiplier).min(1.0),
+            b: (accent_blue * multiplier * light_multiplier).min(1.0),
+            a: 1.0,
+        }
+    } else {
+        D2D1_COLOR_F {
+            r: (accent_avg / 1.5 + accent_red / 10.0) * light_multiplier,
+            g: (accent_avg / 1.5 + accent_green / 10.0) * light_multiplier,
+            b: (accent_avg / 1.5 + accent_blue / 10.0) * light_multiplier,
+            a: 1.0,
+        }
+    }
+}
+
+fn get_accent_color_dark(is_active_color: bool) -> D2D1_COLOR_F {
+    let mut pcr_colorization: u32 = 0;
+    let mut pf_opaqueblend: BOOL = FALSE;
+    unsafe { DwmGetColorizationColor(&mut pcr_colorization, &mut pf_opaqueblend) }
+        .context("could not retrieve windows accent color")
+        .log_if_err();
+
+    let accent_red = ((pcr_colorization & 0x00FF0000) >> 16) as f32 / 255.0;
+    let accent_green = ((pcr_colorization & 0x0000FF00) >> 8) as f32 / 255.0;
+    let accent_blue = (pcr_colorization & 0x000000FF) as f32 / 255.0;
+    let accent_avg = (accent_red + accent_green + accent_blue) / 3.0;
+
+    let multiplier = if is_active_color { 1.2 } else { 1.0 };
+    let dark_multiplier = 0.7;
+
+    if is_active_color {
+        D2D1_COLOR_F {
+            r: accent_red * multiplier * dark_multiplier,
+            g: accent_green * multiplier * dark_multiplier,
+            b: accent_blue * multiplier * dark_multiplier,
+            a: 1.0,
+        }
+    } else {
+        D2D1_COLOR_F {
+            r: (accent_avg / 1.5 + accent_red / 10.0) * dark_multiplier,
+            g: (accent_avg / 1.5 + accent_green / 10.0) * dark_multiplier,
+            b: (accent_avg / 1.5 + accent_blue / 10.0) * dark_multiplier,
+            a: 1.0,
+        }
+    }
+}
+
 
 fn get_accent_color(is_active_color: bool) -> D2D1_COLOR_F {
     let mut pcr_colorization: u32 = 0;
