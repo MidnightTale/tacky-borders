@@ -23,9 +23,7 @@ pub enum ColorBrushConfig {
 
 impl Default for ColorBrushConfig {
     fn default() -> Self {
-        Self::Solid("accent".to_string());
-        Self::Solid("accent_light".to_string());
-        Self::Solid("accent_dark".to_string())
+        Self::Solid("accent".to_string())
     }
 }
 
