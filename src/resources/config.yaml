@@ -1,6 +1,13 @@
 # watch_config_changes: Automatically reload borders whenever the config file is modified.
 watch_config_changes: True
 
+# rendering_backend: Renderer type. Supported values:
+#   - V2: A more complex renderer that supports new features. Found in v1.2.0 and above.
+#   - Legacy: A simpler, more limited renderer. Found in v0.1.0 and above.
+#
+# Performance between the two may vary system-to-system, so I leave the choice up to you.
+rendering_backend: V2
+
 # Global configuration options
 global:
   # border_width: Width of the border (in pixels)
@@ -64,9 +71,9 @@ global:
     enabled: False
 
   # animations: Configure animation behavior for window borders
-  #   fps: Animation frame rate
   #   active: Animations for active windows
   #   inactive: Animations for inactive windows
+  #   fps: Animation frame rate
   #
   # Supported animation types:
   #   - Spiral
@@ -104,6 +111,56 @@ global:
         easing: EaseInOutQuad
 
     fps: 60
+    enabled: False
+
+  # effects: Configure Direct2D effects for the window
+  #   active: Effects for active windows
+  #   inactive: Effects for inactive windows
+  #
+  # Supported effect types:
+  #   - Shadow
+  #   - Glow
+  #
+  # Specify effect types and parameters as follows:
+  #   active:
+  #    - type: Shadow
+  #      std_dev: 32.0
+  #      opacity: 0.75
+  #      translation:
+  #        x: 0
+  #        y: 20
+  #
+  #    - type: Glow
+  #      std_dev: 16.0
+  #      opacity: 0.5
+  #
+  # NOTE: These effects can significantly increase CPU and GPU usage.
+  # Additionally, you must use rendering_backend: V2 for the effects to appear.
+  effects:
+    active:
+      - type: Shadow
+        radius: 2.0
+        opacity: 1.0
+        translation:
+          x: 0
+          y: 0
+
+      - type: Glow
+        radius: 8.0
+        opacity: 1.0
+
+    inactive:
+      - type: Shadow
+        radius: 2.0
+        opacity: 1.0
+        translation:
+          x: 0
+          y: 0
+
+      - type: Glow
+        radius: 8.0
+        opacity: 1.0
+
     enabled: False
 
   # initialize_delay: Time (in ms) before the border appears after opening a new window
